@@ -24,7 +24,7 @@ static NSMutableDictionary * players;
 typedef void (^VoidCallback)(NSString * playerId);
 
 NSMutableSet *timeobservers;
-FlutterMethodChannel *_channel;
+FlutterMethodChannel *_channelAP;
 
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
   FlutterMethodChannel* channel = [FlutterMethodChannel
@@ -32,7 +32,7 @@ FlutterMethodChannel *_channel;
                                    binaryMessenger:[registrar messenger]];
   AudioplayersPlugin* instance = [[AudioplayersPlugin alloc] init];
   [registrar addMethodCallDelegate:instance channel:channel];
-  _channel = channel;
+  _channelAP = channel;
 }
 
 - (id)init {
@@ -249,7 +249,7 @@ FlutterMethodChannel *_channel;
   if(CMTimeGetSeconds(duration)>0){
     NSLog(@"ios -> invokechannel");
    int mseconds= CMTimeGetSeconds(duration)*1000;
-    [_channel invokeMethod:@"audio.onDuration" arguments:@{@"playerId": playerId, @"value": @(mseconds)}];
+    [_channelAP invokeMethod:@"audio.onDuration" arguments:@{@"playerId": playerId, @"value": @(mseconds)}];
   }
 }
 
@@ -258,7 +258,7 @@ FlutterMethodChannel *_channel;
   NSLog(@"ios -> onTimeInterval...");
   int mseconds =  CMTimeGetSeconds(time)*1000;
     NSLog(@"asdff %@ - %d", playerId, mseconds);
-  [_channel invokeMethod:@"audio.onCurrentPosition" arguments:@{@"playerId": playerId, @"value": @(mseconds)}];
+  [_channelAP invokeMethod:@"audio.onCurrentPosition" arguments:@{@"playerId": playerId, @"value": @(mseconds)}];
     NSLog(@"asdff end");
 }
 
@@ -323,7 +323,7 @@ FlutterMethodChannel *_channel;
     [ self resume:playerId ];
   }
 
-  [ _channel invokeMethod:@"audio.onComplete" arguments:@{@"playerId": playerId}];
+  [ _channelAP invokeMethod:@"audio.onComplete" arguments:@{@"playerId": playerId}];
 }
 
 -(void)observeValueForKeyPath:(NSString *)keyPath
@@ -347,7 +347,7 @@ FlutterMethodChannel *_channel;
         onReady(playerId);
       }
     } else if ([[player currentItem] status ] == AVPlayerItemStatusFailed) {
-      [_channel invokeMethod:@"audio.onError" arguments:@{@"playerId": playerId, @"value": @"AVPlayerItemStatus.failed"}];
+      [_channelAP invokeMethod:@"audio.onError" arguments:@{@"playerId": playerId, @"value": @"AVPlayerItemStatus.failed"}];
     }
   } else {
     // Any unrecognized context must belong to super
